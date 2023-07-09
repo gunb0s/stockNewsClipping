@@ -1,4 +1,6 @@
 import * as cheerio from "cheerio";
+import { News } from "./news-clipping";
+import { escapers } from "@telegraf/entity";
 
 export const htmlParser = (html: string) => {
   const result = [];
@@ -16,7 +18,26 @@ export const htmlParser = (html: string) => {
   return result;
 };
 
-function getTitleAndUrl(htmlTag: cheerio.Cheerio): [string, string | undefined] {
+export const createMarkDown = (
+  newsToKeyword: Record<string, Pick<News, "title" | "link">[]>
+): string => {
+  let message = "외국인 순매도";
+  for (const keyword of Object.keys(newsToKeyword)) {
+    let newsClippingMsg = `${keyword}\n\n`;
+    const news = newsToKeyword[keyword];
+    for (const item of news) {
+      newsClippingMsg += `\n${item.title}\n${item.link}`;
+    }
+
+    message += "\n\n" + newsClippingMsg;
+  }
+
+  return escapers.HTML(message);
+};
+
+function getTitleAndUrl(
+  htmlTag: cheerio.Cheerio
+): [string, string | undefined] {
   const title = htmlTag.text();
   const href = htmlTag.attr("href");
   return [title, href];

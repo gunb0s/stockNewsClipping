@@ -23,8 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.htmlParser = void 0;
+exports.createMarkDown = exports.htmlParser = void 0;
 const cheerio = __importStar(require("cheerio"));
+const entity_1 = require("@telegraf/entity");
 const htmlParser = (html) => {
     const result = [];
     const $ = cheerio.load(html);
@@ -39,6 +40,19 @@ const htmlParser = (html) => {
     return result;
 };
 exports.htmlParser = htmlParser;
+const createMarkDown = (newsToKeyword) => {
+    let message = "외국인 순매도";
+    for (const keyword of Object.keys(newsToKeyword)) {
+        let newsClippingMsg = `${keyword}\n\n`;
+        const news = newsToKeyword[keyword];
+        for (const item of news) {
+            newsClippingMsg += `\n${item.title}\n${item.link}`;
+        }
+        message += "\n\n" + newsClippingMsg;
+    }
+    return entity_1.escapers.HTML(message);
+};
+exports.createMarkDown = createMarkDown;
 function getTitleAndUrl(htmlTag) {
     const title = htmlTag.text();
     const href = htmlTag.attr("href");

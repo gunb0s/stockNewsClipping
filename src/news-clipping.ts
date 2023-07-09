@@ -11,7 +11,7 @@ interface NewsResponse {
   items: News[];
 }
 
-interface News {
+export interface News {
   title: string;
   originallink: string;
   link: string;
@@ -23,7 +23,7 @@ export class NewsClipping {
   private readonly url = new URL("https://openapi.naver.com/v1/search/news.json");
 
   public async getNewsWithLink(keywords: string[]) {
-    const result: Record<string, any> = {};
+    const result: Record<string, Pick<News, "title" | "link">[]> = {};
     for (const keyword of keywords) {
       const items = (await this.getNews(keyword)) as News[];
 
