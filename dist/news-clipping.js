@@ -39,6 +39,23 @@ exports.NewsClipping = void 0;
 const dotenv = __importStar(require("dotenv"));
 const axios_1 = __importDefault(require("axios"));
 dotenv.config();
+function decodeHTMLEntities(text) {
+    const entities = [
+        ["amp", "&"],
+        ["apos", "'"],
+        ["#x27", "'"],
+        ["#x2F", "/"],
+        ["#39", "'"],
+        ["#47", "/"],
+        ["lt", "<"],
+        ["gt", ">"],
+        ["nbsp", " "],
+        ["quot", '"'],
+    ];
+    for (let i = 0, max = entities.length; i < max; ++i)
+        text = text.replace(new RegExp("&" + entities[i][0] + ";", "g"), entities[i][1]);
+    return text;
+}
 class NewsClipping {
     constructor() {
         this.url = new URL("https://openapi.naver.com/v1/search/news.json");
@@ -51,7 +68,7 @@ class NewsClipping {
                 result[keyword] = [];
                 for (const item of items) {
                     result[keyword].push({
-                        title: item.title,
+                        title: decodeHTMLEntities(item.title.replace(/<[^>]+>/g, "")),
                         link: item.link,
                     });
                 }

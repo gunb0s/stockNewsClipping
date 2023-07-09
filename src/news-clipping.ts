@@ -19,8 +19,33 @@ export interface News {
   pubDate: string;
 }
 
+function decodeHTMLEntities(text: string) {
+  const entities = [
+    ["amp", "&"],
+    ["apos", "'"],
+    ["#x27", "'"],
+    ["#x2F", "/"],
+    ["#39", "'"],
+    ["#47", "/"],
+    ["lt", "<"],
+    ["gt", ">"],
+    ["nbsp", " "],
+    ["quot", '"'],
+  ];
+
+  for (let i = 0, max = entities.length; i < max; ++i)
+    text = text.replace(
+      new RegExp("&" + entities[i][0] + ";", "g"),
+      entities[i][1]
+    );
+
+  return text;
+}
+
 export class NewsClipping {
-  private readonly url = new URL("https://openapi.naver.com/v1/search/news.json");
+  private readonly url = new URL(
+    "https://openapi.naver.com/v1/search/news.json"
+  );
 
   public async getNewsWithLink(keywords: string[]) {
     const result: Record<string, Pick<News, "title" | "link">[]> = {};
@@ -30,7 +55,7 @@ export class NewsClipping {
       result[keyword] = [];
       for (const item of items) {
         result[keyword].push({
-          title: item.title,
+          title: decodeHTMLEntities(item.title.replace(/<[^>]+>/g, "")),
           link: item.link,
         });
       }
