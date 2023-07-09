@@ -11,12 +11,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const crawler_1 = require("./crawler");
 const parser_1 = require("./parser");
+const news_clipping_1 = require("./news-clipping");
 const naverFinance = "https://finance.naver.com";
 const foreignerSell = "https://finance.naver.com/sise/sise_deal_rank_iframe.naver?sosok=01&investor_gubun=9000&type=sell";
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const html = yield (0, crawler_1.getInvestmentTrend)(foreignerSell);
         const titleAndUrls = (0, parser_1.htmlParser)(html);
+        const titles = titleAndUrls.map((item) => item[0]);
+        const news = yield new news_clipping_1.NewsClipping().getNewsWithLink(titles);
+        console.log(news);
     });
 }
 main().then();
