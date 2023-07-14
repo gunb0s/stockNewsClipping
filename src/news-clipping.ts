@@ -43,19 +43,21 @@ function decodeHTMLEntities(text: string) {
 }
 
 export class NewsClipping {
-  private readonly url = new URL(
+  private readonly baseUrl = new URL(
     "https://openapi.naver.com/v1/search/news.json"
   );
 
-  public async getNewsWithLink(keywords: string[]) {
+  public async getNewsWithShares(
+    shares: string[]
+  ): Promise<Record<string, Pick<News, "title" | "link">[]>> {
     const result: Record<string, Pick<News, "title" | "link">[]> = {};
-    for (const keyword of keywords) {
-      const items = (await this.getNews(keyword)) as News[];
+    for (const share of shares) {
+      const items = (await this.getNews(share)) as News[];
 
-      result[keyword] = [];
+      result[share] = [];
       for (const item of items) {
-        result[keyword].push({
-          title: decodeHTMLEntities(item.title.replace(/<[^>]+>/g, "")),
+        result[share].push({
+          title: decodeHTMLEntities(this.sanitizeHtmlText(item.title)),
           link: item.link,
         });
       }
@@ -64,8 +66,12 @@ export class NewsClipping {
     return result;
   }
 
-  private async getNews(keyword: string): Promise<News[] | undefined> {
-    const newsURL = this.urlGenerator(keyword);
+  private sanitizeHtmlText(text: string) {
+    return text.replace(/<[^>]+>/g, "");
+  }
+
+  private async getNews(title: string): Promise<News[] | undefined> {
+    const newsURL = this.urlGenerator(title);
 
     try {
       const result = await axios.get<NewsResponse>(newsURL, {
@@ -81,13 +87,13 @@ export class NewsClipping {
     }
   }
 
-  private urlGenerator(keyword: string): string {
+  private urlGenerator(title: string): string {
     const queryParams = new URLSearchParams({
-      query: keyword,
+      query: title,
       display: "3",
     });
-    this.url.search = queryParams.toString();
+    this.baseUrl.search = queryParams.toString();
 
-    return this.url.href;
+    return this.baseUrl.href;
   }
 }

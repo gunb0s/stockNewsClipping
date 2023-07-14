@@ -1,9 +1,8 @@
 import * as cheerio from "cheerio";
 import { News } from "./news-clipping";
-import { escapers } from "@telegraf/entity";
 
-export const htmlParser = (html: string) => {
-  const result = [];
+export const extractSharesAndUrls = (html: string) => {
+  const result = new Map<string, string>();
   const $ = cheerio.load(html);
 
   // div.box_type_ms > table.type_1 > tbody > tr
@@ -12,19 +11,24 @@ export const htmlParser = (html: string) => {
   const tr = $(box_type_ms).find("tr").slice(2);
   for (let i = 0; i < 5; i++) {
     const titleTag = $(tr[i]).find(".tltle");
-    const titleAndUrl = getTitleAndUrl(titleTag);
-    result.push(titleAndUrl);
+    const [title, url] = getTitleAndUrl(titleTag);
+    result.set(title, url);
   }
   return result;
 };
 
-export const createMarkDown = (
-  newsToKeyword: Record<string, Pick<News, "title" | "link">[]>
+export const createHTMLMessage = (
+  trend: string,
+  trendUrl: string,
+  shareToNews: Record<string, Pick<News, "title" | "link">[]>,
+  sharesAndUrls: Map<string, string>
 ): string => {
-  let message = "외국인 순매도";
-  for (const keyword of Object.keys(newsToKeyword)) {
-    let newsClippingMsg = `${keyword}\n\n`;
-    const news = newsToKeyword[keyword];
+  let message = `<a href="${trendUrl}"><u>${trend}</u></a>`;
+  for (const share of Object.keys(shareToNews)) {
+    const news = shareToNews[share];
+    const shareUrl = sharesAndUrls.get(share);
+
+    let newsClippingMsg = `<a href="https://finance.naver.com${shareUrl}">${share}</a>\n\n`;
     for (const item of news) {
       newsClippingMsg += `\n${item.title}\n${item.link}`;
     }
@@ -32,13 +36,11 @@ export const createMarkDown = (
     message += "\n\n" + newsClippingMsg;
   }
 
-  return escapers.HTML(message);
+  return message;
 };
 
-function getTitleAndUrl(
-  htmlTag: cheerio.Cheerio
-): [string, string | undefined] {
+function getTitleAndUrl(htmlTag: cheerio.Cheerio): [string, string] {
   const title = htmlTag.text();
-  const href = htmlTag.attr("href");
+  const href = htmlTag.attr("href") as string;
   return [title, href];
 }

@@ -9,7 +9,7 @@ export class TelegramBot {
 
   async sendMessage(message: string) {
     this.telegramBot.sendMessage(process.env.CHAT_ID!, message, {
-      message_thread_id: 2,
+      message_thread_id: 0,
       parse_mode: "HTML",
     });
   }

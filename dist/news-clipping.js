@@ -58,17 +58,17 @@ function decodeHTMLEntities(text) {
 }
 class NewsClipping {
     constructor() {
-        this.url = new URL("https://openapi.naver.com/v1/search/news.json");
+        this.baseUrl = new URL("https://openapi.naver.com/v1/search/news.json");
     }
-    getNewsWithLink(keywords) {
+    getNewsWithShares(shares) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = {};
-            for (const keyword of keywords) {
-                const items = (yield this.getNews(keyword));
-                result[keyword] = [];
+            for (const share of shares) {
+                const items = (yield this.getNews(share));
+                result[share] = [];
                 for (const item of items) {
-                    result[keyword].push({
-                        title: decodeHTMLEntities(item.title.replace(/<[^>]+>/g, "")),
+                    result[share].push({
+                        title: decodeHTMLEntities(this.sanitizeHtmlText(item.title)),
                         link: item.link,
                     });
                 }
@@ -76,9 +76,12 @@ class NewsClipping {
             return result;
         });
     }
-    getNews(keyword) {
+    sanitizeHtmlText(text) {
+        return text.replace(/<[^>]+>/g, "");
+    }
+    getNews(title) {
         return __awaiter(this, void 0, void 0, function* () {
-            const newsURL = this.urlGenerator(keyword);
+            const newsURL = this.urlGenerator(title);
             try {
                 const result = yield axios_1.default.get(newsURL, {
                     headers: {
@@ -93,13 +96,13 @@ class NewsClipping {
             }
         });
     }
-    urlGenerator(keyword) {
+    urlGenerator(title) {
         const queryParams = new URLSearchParams({
-            query: keyword,
+            query: title,
             display: "3",
         });
-        this.url.search = queryParams.toString();
-        return this.url.href;
+        this.baseUrl.search = queryParams.toString();
+        return this.baseUrl.href;
     }
 }
 exports.NewsClipping = NewsClipping;

@@ -23,36 +23,36 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMarkDown = exports.htmlParser = void 0;
+exports.createHTMLMessage = exports.extractSharesAndUrls = void 0;
 const cheerio = __importStar(require("cheerio"));
-const entity_1 = require("@telegraf/entity");
-const htmlParser = (html) => {
-    const result = [];
+const extractSharesAndUrls = (html) => {
+    const result = new Map();
     const $ = cheerio.load(html);
     // div.box_type_ms > table.type_1 > tbody > tr
     const box_type_ms = $(".box_type_ms")[1];
     const tr = $(box_type_ms).find("tr").slice(2);
     for (let i = 0; i < 5; i++) {
         const titleTag = $(tr[i]).find(".tltle");
-        const titleAndUrl = getTitleAndUrl(titleTag);
-        result.push(titleAndUrl);
+        const [title, url] = getTitleAndUrl(titleTag);
+        result.set(title, url);
     }
     return result;
 };
-exports.htmlParser = htmlParser;
-const createMarkDown = (newsToKeyword) => {
-    let message = "외국인 순매도";
-    for (const keyword of Object.keys(newsToKeyword)) {
-        let newsClippingMsg = `${keyword}\n\n`;
-        const news = newsToKeyword[keyword];
+exports.extractSharesAndUrls = extractSharesAndUrls;
+const createHTMLMessage = (trend, trendUrl, shareToNews, sharesAndUrls) => {
+    let message = `<a href="${trendUrl}"><u>${trend}</u></a>`;
+    for (const share of Object.keys(shareToNews)) {
+        const news = shareToNews[share];
+        const shareUrl = sharesAndUrls.get(share);
+        let newsClippingMsg = `<a href="https://finance.naver.com${shareUrl}">${share}</a>\n\n`;
         for (const item of news) {
             newsClippingMsg += `\n${item.title}\n${item.link}`;
         }
         message += "\n\n" + newsClippingMsg;
     }
-    return entity_1.escapers.HTML(message);
+    return message;
 };
-exports.createMarkDown = createMarkDown;
+exports.createHTMLMessage = createHTMLMessage;
 function getTitleAndUrl(htmlTag) {
     const title = htmlTag.text();
     const href = htmlTag.attr("href");
