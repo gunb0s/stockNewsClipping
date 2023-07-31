@@ -1,6 +1,7 @@
 import { ShareTrendListener } from "../trend_listner/shareTrendListener";
 import { Collector, TREND_INDEX, TREND_URL } from "./collector";
 import { DataProcessor } from "../data_processor/dataProcessor";
+import { ForeignerSellListener } from "../trend_listner/foreignerSellListener";
 
 export interface TrendEvent {
   name: string;
@@ -20,6 +21,14 @@ export class ShareTrendCollector implements Collector {
 
   constructor() {
     this.dataProcessor = new DataProcessor();
+
+    this.registerListener(
+      TREND_INDEX.ForeignerSell,
+      new ForeignerSellListener(
+        TREND_INDEX.ForeignerSell,
+        this.URL_MAP.get(TREND_INDEX.ForeignerSell)!
+      )
+    );
   }
 
   registerListener(trend: TREND_INDEX, listener: ShareTrendListener) {

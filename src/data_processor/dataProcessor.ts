@@ -1,6 +1,6 @@
-import axios from "axios/index";
+import axios from "axios";
 import iconv from "iconv-lite";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import { TrendEvent } from "../collector/shareTrendCollector";
 
 export class DataProcessor {

@@ -1,3 +1,3 @@
 export interface Display {
-  display(): void;
+  display(message: string): void;
 }

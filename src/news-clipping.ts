@@ -1,7 +1,16 @@
 import * as dotenv from "dotenv";
 import axios from "axios";
+import { TrendEvent } from "./collector/shareTrendCollector";
+import { TREND_INDEX, TREND_URL } from "./collector/collector";
 
 dotenv.config();
+
+const TREND_TRANSLATOR = new Map<TREND_INDEX, string>([
+  [TREND_INDEX.ForeignerSell, "외국인 매도"],
+  [TREND_INDEX.ForeignerBuy, "외국인 매수"],
+  [TREND_INDEX.InstitutionalSell, "기관 매도"],
+  [TREND_INDEX.InstitutionalBuy, "기관 매수"],
+]);
 
 interface NewsResponse {
   lastBuildDate: string;
@@ -64,6 +73,31 @@ export class NewsClipping {
     }
 
     return result;
+  }
+
+  async createHTMLMessage(
+    trend: TREND_INDEX,
+    trendUrl: TREND_URL,
+    events: TrendEvent[]
+  ): Promise<string> {
+    const shares = events.map((event) => event.name);
+    const shareToNews = await this.getNewsWithShares(shares);
+
+    let message = `<a href="${trendUrl}"><u>${TREND_TRANSLATOR.get(
+      trend
+    )}</u></a>`;
+    for (const share of Object.keys(shareToNews)) {
+      const news = shareToNews[share];
+
+      let newsClippingMsg = `<b>${share}</b>\n\n`;
+      for (const item of news) {
+        newsClippingMsg += `\n${item.title}\n${item.link}`;
+      }
+
+      message += "\n\n" + newsClippingMsg;
+    }
+
+    return message;
   }
 
   private sanitizeHtmlText(text: string) {
