@@ -1,5 +1,5 @@
 import { TrendEvent } from "../collector/shareTrendCollector";
 
-export interface ShareTrendListener {
+export interface Listener {
   update(events: TrendEvent[]): void;
 }

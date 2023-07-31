@@ -1,7 +1,7 @@
-import { ShareTrendListener } from "../trend_listner/shareTrendListener";
+import { Listener } from "../trend_listner/listener";
 import { Collector, TREND_INDEX, TREND_URL } from "./collector";
 import { DataProcessor } from "../data_processor/dataProcessor";
-import { ForeignerSellListener } from "../trend_listner/foreignerSellListener";
+import { TrendListener } from "../trend_listner/trendListener";
 
 export interface TrendEvent {
   name: string;
@@ -9,7 +9,7 @@ export interface TrendEvent {
 }
 
 export class ShareTrendCollector implements Collector {
-  trendToListeners = new Map<TREND_INDEX, ShareTrendListener>();
+  trendToListeners = new Map<TREND_INDEX, Listener>();
   trendToEvents = new Map<TREND_INDEX, TrendEvent[]>();
   URL_MAP = new Map<TREND_INDEX, TREND_URL>([
     [TREND_INDEX.ForeignerSell, TREND_URL.ForeignerSell],
@@ -24,14 +24,35 @@ export class ShareTrendCollector implements Collector {
 
     this.registerListener(
       TREND_INDEX.ForeignerSell,
-      new ForeignerSellListener(
+      new TrendListener(
         TREND_INDEX.ForeignerSell,
         this.URL_MAP.get(TREND_INDEX.ForeignerSell)!
       )
     );
+    this.registerListener(
+      TREND_INDEX.ForeignerBuy,
+      new TrendListener(
+        TREND_INDEX.ForeignerBuy,
+        this.URL_MAP.get(TREND_INDEX.ForeignerBuy)!
+      )
+    );
+    this.registerListener(
+      TREND_INDEX.InstitutionalSell,
+      new TrendListener(
+        TREND_INDEX.InstitutionalSell,
+        this.URL_MAP.get(TREND_INDEX.InstitutionalSell)!
+      )
+    );
+    this.registerListener(
+      TREND_INDEX.InstitutionalBuy,
+      new TrendListener(
+        TREND_INDEX.InstitutionalBuy,
+        this.URL_MAP.get(TREND_INDEX.InstitutionalBuy)!
+      )
+    );
   }
 
-  registerListener(trend: TREND_INDEX, listener: ShareTrendListener) {
+  registerListener(trend: TREND_INDEX, listener: Listener) {
     this.trendToListeners.set(trend, listener);
   }
 
