@@ -1,36 +1,28 @@
-export class ShareTrendCollector {
-  private readonly FOREIGN_NET_PURCHASE =
-    "https://finance.naver.com/sise/sise_deal_rank_iframe.naver?sosok=01&investor_gubun=9000&type=buy";
-  private readonly FOREIGN_NET_SALES =
-    "https://finance.naver.com/sise/sise_deal_rank_iframe.naver?sosok=01&investor_gubun=9000&type=sell";
-  private readonly INSTITUTIONAL_NET_PURCHASE =
-    "https://finance.naver.com/sise/sise_deal_rank_iframe.naver?sosok=01&investor_gubun=1000&type=buy";
-  private readonly INSTITUTIONAL_NET_SALES =
-    "https://finance.naver.com/sise/sise_deal_rank_iframe.naver?sosok=01&investor_gubun=1000&type=sell";
+import { ShareTrendListener } from "../trend_listner/shareTrendListener";
+import { Collector, TREND_INDEX, TREND_URL } from "./Collector";
+import { DataProcessor } from "../data_processor/dataProcessor";
 
-  private readonly TREND_INDEX = [
-    "외국인 순 매도",
-    "외국인 순 매수",
-    "기관 순 매도",
-    "기관 순 매수",
-  ] as const;
-  private readonly URLS = [
-    this.FOREIGN_NET_PURCHASE,
-    this.FOREIGN_NET_SALES,
-    this.INSTITUTIONAL_NET_PURCHASE,
-    this.INSTITUTIONAL_NET_SALES,
-  ] as const;
-
-  URL_MAP = new Map<
-    (typeof this.TREND_INDEX)[number],
-    (typeof this.URLS)[number]
-  >([
-    ["외국인 순 매도", this.FOREIGN_NET_PURCHASE],
-    ["외국인 순 매수", this.FOREIGN_NET_SALES],
-    ["기관 순 매도", this.INSTITUTIONAL_NET_PURCHASE],
-    ["기관 순 매수", this.INSTITUTIONAL_NET_SALES],
+export class ShareTrendCollector implements Collector {
+  trendToListeners = new Map<TREND_INDEX, ShareTrendListener>();
+  trendToEvents = new Map<TREND_INDEX, string[]>();
+  URL_MAP = new Map<TREND_INDEX, TREND_URL>([
+    [TREND_INDEX.ForeignerSell, TREND_URL.ForeignerSell],
+    [TREND_INDEX.ForeignerBuy, TREND_URL.ForeignerBuy],
+    [TREND_INDEX.InstitutionalSell, TREND_URL.InstitutionalSell],
+    [TREND_INDEX.InstitutionalBuy, TREND_URL.InstitutionalBuy],
   ]);
+  private readonly dataProcessor: DataProcessor;
 
-  registerListener() {}
+  constructor() {
+    this.dataProcessor = new DataProcessor();
+  }
+
+  registerListener(trend: TREND_INDEX, listener: ShareTrendListener) {
+    this.trendToListeners.set(trend, listener);
+  }
+
+  removeListener(trend: TREND_INDEX) {
+    this.trendToListeners.delete(trend);
+  }
   notify() {}
 }
