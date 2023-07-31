@@ -1,10 +1,15 @@
 import { ShareTrendListener } from "../trend_listner/shareTrendListener";
-import { Collector, TREND_INDEX, TREND_URL } from "./Collector";
+import { Collector, TREND_INDEX, TREND_URL } from "./collector";
 import { DataProcessor } from "../data_processor/dataProcessor";
+
+export interface TrendEvent {
+  name: string;
+  url: string;
+}
 
 export class ShareTrendCollector implements Collector {
   trendToListeners = new Map<TREND_INDEX, ShareTrendListener>();
-  trendToEvents = new Map<TREND_INDEX, string[]>();
+  trendToEvents = new Map<TREND_INDEX, TrendEvent[]>();
   URL_MAP = new Map<TREND_INDEX, TREND_URL>([
     [TREND_INDEX.ForeignerSell, TREND_URL.ForeignerSell],
     [TREND_INDEX.ForeignerBuy, TREND_URL.ForeignerBuy],
@@ -24,5 +29,19 @@ export class ShareTrendCollector implements Collector {
   removeListener(trend: TREND_INDEX) {
     this.trendToListeners.delete(trend);
   }
-  notify() {}
+  async notify() {
+    for (const [trend, listener] of this.trendToListeners) {
+      await listener.update(this.trendToEvents.get(trend)!);
+    }
+  }
+
+  async collect() {
+    for (const [trend, trendUrl] of this.URL_MAP) {
+      const trendEvents = await this.dataProcessor.extractSharesAndUrls(
+        trendUrl
+      ); // 문서에서 탑 3 주식, url 뽑아오기
+
+      this.trendToEvents.set(trend, trendEvents);
+    }
+  }
 }
