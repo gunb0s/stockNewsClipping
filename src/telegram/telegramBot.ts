@@ -1,6 +1,6 @@
 import { Telegram } from "telegraf";
 
-export class TelegramBotDeprecated {
+export class TelegramBot {
   private readonly telegramBot;
 
   constructor() {
