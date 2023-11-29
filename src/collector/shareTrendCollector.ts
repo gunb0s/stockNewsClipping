@@ -2,6 +2,8 @@ import { Listener } from "../trend_listner/listener";
 import { Collector, TREND_INDEX, TREND_URL } from "./collector";
 import { DataProcessor } from "../data_processor/dataProcessor";
 import { TrendListener } from "../trend_listner/trendListener";
+import { TelegramBot } from "../telegram/telegramBot";
+import { NewsClipping } from "../news-clipping";
 
 export interface TrendEvent {
   name: string;
@@ -19,9 +21,14 @@ export class ShareTrendCollector implements Collector {
   ]);
 
   constructor(private readonly dataProcessor: DataProcessor) {
+    const telegramBot = new TelegramBot();
+    const newsClipping = new NewsClipping();
+
     this.registerListener(
       TREND_INDEX.ForeignerSell,
       new TrendListener(
+        telegramBot,
+        newsClipping,
         TREND_INDEX.ForeignerSell,
         this.URL_MAP.get(TREND_INDEX.ForeignerSell)!
       )
@@ -29,6 +36,8 @@ export class ShareTrendCollector implements Collector {
     this.registerListener(
       TREND_INDEX.ForeignerBuy,
       new TrendListener(
+        telegramBot,
+        newsClipping,
         TREND_INDEX.ForeignerBuy,
         this.URL_MAP.get(TREND_INDEX.ForeignerBuy)!
       )
@@ -36,6 +45,8 @@ export class ShareTrendCollector implements Collector {
     this.registerListener(
       TREND_INDEX.InstitutionalSell,
       new TrendListener(
+        telegramBot,
+        newsClipping,
         TREND_INDEX.InstitutionalSell,
         this.URL_MAP.get(TREND_INDEX.InstitutionalSell)!
       )
@@ -43,6 +54,8 @@ export class ShareTrendCollector implements Collector {
     this.registerListener(
       TREND_INDEX.InstitutionalBuy,
       new TrendListener(
+        telegramBot,
+        newsClipping,
         TREND_INDEX.InstitutionalBuy,
         this.URL_MAP.get(TREND_INDEX.InstitutionalBuy)!
       )

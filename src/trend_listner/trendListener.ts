@@ -8,12 +8,13 @@ import { TREND_INDEX, TREND_URL } from "../collector/collector";
 export class TrendListener implements Listener, Display {
   private readonly name: TREND_INDEX;
   private readonly url: TREND_URL;
-  private readonly telegramBot: TelegramBot;
-  private readonly newsClipping: NewsClipping;
 
-  constructor(name: TREND_INDEX, url: TREND_URL) {
-    this.telegramBot = new TelegramBot();
-    this.newsClipping = new NewsClipping();
+  constructor(
+    private readonly telegramBot: TelegramBot,
+    private readonly newsClipping: NewsClipping,
+    name: TREND_INDEX,
+    url: TREND_URL
+  ) {
     this.name = name;
     this.url = url;
   }
