@@ -1,7 +1,10 @@
 import { ShareTrendCollector } from "./collector/shareTrendCollector";
+import { DataProcessor } from "./data_processor/dataProcessor";
 
 export const handler = async () => {
-  const shareTrendCollector = new ShareTrendCollector();
+  const dataProcessor = new DataProcessor();
+
+  const shareTrendCollector = new ShareTrendCollector(dataProcessor);
 
   await shareTrendCollector.collect();
 

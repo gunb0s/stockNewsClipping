@@ -17,11 +17,8 @@ export class ShareTrendCollector implements Collector {
     [TREND_INDEX.InstitutionalSell, TREND_URL.InstitutionalSell],
     [TREND_INDEX.InstitutionalBuy, TREND_URL.InstitutionalBuy],
   ]);
-  private readonly dataProcessor: DataProcessor;
 
-  constructor() {
-    this.dataProcessor = new DataProcessor();
-
+  constructor(private readonly dataProcessor: DataProcessor) {
     this.registerListener(
       TREND_INDEX.ForeignerSell,
       new TrendListener(
