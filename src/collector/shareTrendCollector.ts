@@ -20,15 +20,16 @@ export class ShareTrendCollector implements Collector {
     [TREND_INDEX.InstitutionalBuy, TREND_URL.InstitutionalBuy],
   ]);
 
-  constructor(private readonly dataProcessor: DataProcessor) {
-    const telegramBot = new TelegramBot();
-    const newsClipping = new NewsClipping();
-
+  constructor(
+    private readonly dataProcessor: DataProcessor,
+    private readonly telegramBot: TelegramBot,
+    private readonly newsClipping: NewsClipping
+  ) {
     this.registerListener(
       TREND_INDEX.ForeignerSell,
       new TrendListener(
-        telegramBot,
-        newsClipping,
+        this.telegramBot,
+        this.newsClipping,
         TREND_INDEX.ForeignerSell,
         this.URL_MAP.get(TREND_INDEX.ForeignerSell)!
       )
@@ -36,8 +37,8 @@ export class ShareTrendCollector implements Collector {
     this.registerListener(
       TREND_INDEX.ForeignerBuy,
       new TrendListener(
-        telegramBot,
-        newsClipping,
+        this.telegramBot,
+        this.newsClipping,
         TREND_INDEX.ForeignerBuy,
         this.URL_MAP.get(TREND_INDEX.ForeignerBuy)!
       )
@@ -45,8 +46,8 @@ export class ShareTrendCollector implements Collector {
     this.registerListener(
       TREND_INDEX.InstitutionalSell,
       new TrendListener(
-        telegramBot,
-        newsClipping,
+        this.telegramBot,
+        this.newsClipping,
         TREND_INDEX.InstitutionalSell,
         this.URL_MAP.get(TREND_INDEX.InstitutionalSell)!
       )
@@ -54,8 +55,8 @@ export class ShareTrendCollector implements Collector {
     this.registerListener(
       TREND_INDEX.InstitutionalBuy,
       new TrendListener(
-        telegramBot,
-        newsClipping,
+        this.telegramBot,
+        this.newsClipping,
         TREND_INDEX.InstitutionalBuy,
         this.URL_MAP.get(TREND_INDEX.InstitutionalBuy)!
       )
